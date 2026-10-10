@@ -310,7 +310,7 @@ export function ProfileView({
         className={`relative mx-auto flex w-full flex-col items-center ${wide ? "max-w-2xl" : "max-w-md"}`}
       >
         <div className="flex w-full flex-col items-center" style={sectionStyle("avatar")}>
-        <div className="relative inline-flex">
+        <div className="status-bubble-host relative inline-flex">
         <AvatarFrameWrapper
           frame={prefs.avatarFrame}
           theme={t}
