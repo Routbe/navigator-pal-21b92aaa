@@ -331,6 +331,34 @@ export function DesignWallpaperSection({
         </div>
       )}
 
+      {prefs.wallpaperType === "gradient" && (
+        <>
+          <p className="input-label">Richting van het verloop</p>
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-6" role="radiogroup" aria-label="Richting van het verloop">
+            {GRADIENT_DIRECTIONS.map((d) => (
+              <button
+                key={d.id}
+                type="button"
+                role="radio"
+                aria-checked={prefs.wallpaperGradientDirection === d.id}
+                onClick={() => setPref("wallpaperGradientDirection", d.id)}
+                className={cn(
+                  "flex flex-col items-center gap-1.5 rounded-xl border p-2 text-[11px] font-medium transition-colors",
+                  prefs.wallpaperGradientDirection === d.id ? "border-primary ring-1 ring-primary" : "border-border",
+                )}
+              >
+                <span
+                  aria-hidden
+                  className="block h-8 w-full rounded-md border border-border"
+                  style={{ background: gradientCss(prefs.wallpaperGradient, d.id) }}
+                />
+                {d.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
       {prefs.wallpaperType === "image" && (
         <div className="space-y-4">
           <div className="space-y-1.5">
@@ -365,7 +393,18 @@ export function DesignWallpaperSection({
           </div>
         </div>
       )}
-      </CustomGate>
+
+      <p className="input-label border-t border-border pt-4">Achtergrondstijl</p>
+      <div className="flex flex-wrap gap-2">
+        {BACKGROUND_STYLES.map((o) => (
+          <Pill key={o.id} active={prefs.backgroundStyle === o.id} onClick={() => setPref("backgroundStyle", o.id)}>
+            {o.label}
+          </Pill>
+        ))}
+      </div>
+      {extra && <div className="border-t border-border pt-4">{extra}</div>}
+      </div>
+      </div>
     </section>
   );
 }
