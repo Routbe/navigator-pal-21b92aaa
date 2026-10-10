@@ -902,9 +902,9 @@ select:focus-visible {
 }
 
 /* Reserve room so a bubble above never leaves the screen and one below never covers the name. */
-.status-bubble-host:has(> .status-bubble-anchor[data-pos="top"]) { margin-top: 3.25rem; }
-.status-bubble-host:has(> .status-bubble-anchor[data-pos="top-left"]),
-.status-bubble-host:has(> .status-bubble-anchor[data-pos="top-right"]) { margin-top: 1.5rem; }
-.status-bubble-host:has(> .status-bubble-anchor[data-pos="bottom"]) { margin-bottom: 3.25rem; }
-.status-bubble-host:has(> .status-bubble-anchor[data-pos="bottom-left"]),
-.status-bubble-host:has(> .status-bubble-anchor[data-pos="bottom-right"]) { margin-bottom: 2.25rem; }
+.status-bubble-host:has(.status-bubble-anchor[data-pos="top"]) { margin-top: 3.25rem; }
+.status-bubble-host:has(.status-bubble-anchor[data-pos="top-left"]),
+.status-bubble-host:has(.status-bubble-anchor[data-pos="top-right"]) { margin-top: 1.5rem; }
+.status-bubble-host:has(.status-bubble-anchor[data-pos="bottom"]) { margin-bottom: 3.25rem; }
+.status-bubble-host:has(.status-bubble-anchor[data-pos="bottom-left"]),
+.status-bubble-host:has(.status-bubble-anchor[data-pos="bottom-right"]) { margin-bottom: 2.25rem; }
