@@ -355,52 +355,17 @@ export function ProfileThemePicker({
             setTheme={onThemeChange}
             setCardStyle={onCardStyleChange}
           />
-          <p className="input-label border-t border-border pt-4">Themapreset</p>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {PROFILE_THEMES.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => onThemeChange(t.id)}
-                className={cn(
-                  "flex flex-col gap-2 rounded-xl border p-2.5 text-left transition-colors",
-                  theme === t.id ? "border-primary ring-1 ring-primary" : "border-border",
-                )}
-              >
-                <span
-                  className="block h-10 w-full rounded-lg border border-border"
-                  style={{ background: t.bg }}
-                  aria-hidden
-                />
-                <span className="text-xs font-medium">{t.label}</span>
-              </button>
-            ))}
-          </div>
-          <div className="border-t border-border pt-4" />
-          <DesignWallpaperSection prefs={prefs} setPref={setPref} theme={theme} />
-          <div className="border-t border-border pt-4" />
-          <VisitEffectPicker
-            value={prefs.visitEffect}
-            onChange={(id) => setPref("visitEffect", id)}
+          <DesignWallpaperSection
+            prefs={prefs}
+            setPref={setPref}
+            theme={theme}
+            extra={
+              <VisitEffectPicker
+                value={prefs.visitEffect}
+                onChange={(id) => setPref("visitEffect", id)}
+              />
+            }
           />
-          <p className="input-label pt-2">Achtergrondstijl</p>
-          <div className="flex flex-wrap gap-2">
-            {BACKGROUND_STYLES.map((o) => (
-              <button
-                key={o.id}
-                type="button"
-                onClick={() => setPref("backgroundStyle", o.id)}
-                className={cn(
-                  "h-10 shrink-0 rounded-full border px-3 text-xs font-medium transition-colors",
-                  prefs.backgroundStyle === o.id
-                    ? "border-primary/50 bg-primary/10"
-                    : "border-border",
-                )}
-              >
-                {o.label}
-              </button>
-            ))}
-          </div>
           <p className="input-label pt-2">Banner</p>
           <div className="flex flex-wrap gap-2">
             {BANNER_STYLES.map((o) => (
