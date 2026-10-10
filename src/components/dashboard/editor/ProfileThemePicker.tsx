@@ -25,7 +25,7 @@ import {
   TYPOGRAPHY_STYLES,
   type ProfileDisplayPrefs,
 } from "@/lib/profile-display";
-import { CARD_STYLES, PROFILE_THEMES, themeOf } from "@/lib/profile";
+import { CARD_STYLES, themeOf } from "@/lib/profile";
 
 interface ProfileThemePickerProps {
   displayName: string;
