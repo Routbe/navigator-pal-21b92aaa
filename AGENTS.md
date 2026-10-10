@@ -37,3 +37,5 @@
 - Rate limits are counted in Neon (`rate_limits`, db/64) via `hitRateLimit`, failing open on database errors. Why: limits must hold across server instances without locking everyone out.
 - Community stats are live counts; reviews show only when `approved` (db/65); empty sections hide. Why: no fake social proof.
 - Approving a verification cancels that user's other open same-tier requests (`verification-dedupe.ts`). Why: no duplicate admin work.
+- Vercel builds use nitro's `vercel` preset (auto via `VERCEL`), while Lovable sandbox builds are always forced to cloudflare; verify Vercel output by building with the sandbox env vars unset. Why: the sandbox ignores preset overrides.
+- ROUT-presets are the only one-click styling; applying one always sets `backgroundCustom=false` via `presetPrefEntries`, and background fine-tuning lives behind that switch. Why: one source of truth, no duplicate theme lists.
