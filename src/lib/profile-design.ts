@@ -61,6 +61,8 @@ export interface ProfileDesignPrefs {
   wallpaperColor: string | null;
   /** Id uit `GRADIENT_PRESETS`. */
   wallpaperGradient: string;
+  /** Richting uit `GRADIENT_DIRECTIONS`; `auto` behoudt die van het preset. */
+  wallpaperGradientDirection: GradientDirection;
   wallpaperImageUrl: string | null;
   /** 0–24 px blur over de achtergrondafbeelding. */
   wallpaperBlur: number;
@@ -234,6 +236,7 @@ export const DEFAULT_DESIGN_PREFS: ProfileDesignPrefs = {
   wallpaperType: "theme",
   wallpaperColor: null,
   wallpaperGradient: "obsidian",
+  wallpaperGradientDirection: "auto",
   wallpaperImageUrl: null,
   wallpaperBlur: 0,
   wallpaperOverlay: 40,
@@ -440,8 +443,27 @@ export const GRADIENT_PRESETS: { id: string; label: string; css: string }[] = [
   },
 ];
 
-export const gradientCss = (id: string) =>
-  (GRADIENT_PRESETS.find((g) => g.id === id) ?? GRADIENT_PRESETS[0]!).css;
+/** Richting van het achtergrondverloop. `auto` = de oorspronkelijke richting van het preset. */
+export const GRADIENT_DIRECTIONS = [
+  { id: "auto", label: "Origineel", angle: null },
+  { id: "to-bottom", label: "Boven → onder", angle: "180deg" },
+  { id: "to-right", label: "Links → rechts", angle: "90deg" },
+  { id: "diag-down", label: "Diagonaal ↘", angle: "135deg" },
+  { id: "diag-up", label: "Diagonaal ↗", angle: "45deg" },
+  { id: "radial", label: "Vanuit midden", angle: "radial" },
+] as const;
+export type GradientDirection = (typeof GRADIENT_DIRECTIONS)[number]["id"];
+
+export const normalizeGradientDirection = (v: unknown): GradientDirection =>
+  GRADIENT_DIRECTIONS.some((d) => d.id === v) ? (v as GradientDirection) : "auto";
+
+export const gradientCss = (id: string, direction: string = "auto") => {
+  const css = (GRADIENT_PRESETS.find((g) => g.id === id) ?? GRADIENT_PRESETS[0]!).css;
+  const dir = GRADIENT_DIRECTIONS.find((d) => d.id === direction);
+  if (!dir || !dir.angle) return css;
+  if (dir.angle === "radial") return css.replace(/linear-gradient\(\s*\d+deg\s*,/g, "radial-gradient(circle at 50% 35%,");
+  return css.replace(/linear-gradient\(\s*\d+deg\s*,/g, `linear-gradient(${dir.angle},`);
+};
 
 /** Snelkeuze-palet voor alle kleurvelden in de studio. */
 export const COLOR_SWATCHES: { label: string; colors: string[] }[] = [
@@ -648,7 +670,7 @@ export function wallpaperStyle(
 ): Record<string, string> | null {
   if (!(d.backgroundCustom || d.customDesign) || d.wallpaperType === "theme") return null;
   if (d.wallpaperType === "solid") return { background: d.wallpaperColor ?? theme.bg };
-  if (d.wallpaperType === "gradient") return { background: gradientCss(d.wallpaperGradient) };
+  if (d.wallpaperType === "gradient") return { background: gradientCss(d.wallpaperGradient, d.wallpaperGradientDirection) };
   if (d.wallpaperType === "image" && d.wallpaperImageUrl) {
     // De afbeelding zelf komt in een eigen laag binnen de pagina
     // (`wallpaperImageLayerStyle`), zodat blur nooit buiten het profiel lekt.
@@ -795,6 +817,7 @@ export function normalizeDesignPrefs(r: Record<string, unknown>): ProfileDesignP
     wallpaperGradient: GRADIENT_PRESETS.some((g) => g.id === r["wallpaperGradient"])
       ? (r["wallpaperGradient"] as string)
       : "obsidian",
+    wallpaperGradientDirection: normalizeGradientDirection(r["wallpaperGradientDirection"]),
     wallpaperImageUrl: httpsUrl(r["wallpaperImageUrl"]),
     wallpaperBlur: num(r["wallpaperBlur"], 0, 24, 0),
     wallpaperOverlay: num(r["wallpaperOverlay"], 0, 90, 40),
@@ -845,4 +868,9 @@ export function normalizeDesignPrefs(r: Record<string, unknown>): ProfileDesignP
     socialPosition: pick(r["socialPosition"], ["top", "bottom", "footer"] as const, "top"),
 
   };
+}
+
+/** Instellingen die een ROUT-preset zet; sluit altijd de achtergrond-fijnregeling. */
+export function presetPrefEntries(design: Record<string, unknown>): [string, unknown][] {
+  return [...Object.entries(design).filter(([k]) => k !== "backgroundCustom"), ["backgroundCustom", false]];
 }

@@ -26,11 +26,14 @@ import {
   FONT_PAIRINGS,
   FOOTER_STYLES,
   GRADIENT_PRESETS,
+  GRADIENT_DIRECTIONS,
+  BACKGROUND_STYLES,
   ROUT_PRESETS,
   SOCIAL_POSITIONS,
   WALLPAPER_TYPES,
   fontPairingOf,
   gradientCss,
+  presetPrefEntries,
   type ProfileDisplayPrefs,
 } from "@/lib/profile-display";
 
@@ -201,7 +204,7 @@ export function DesignPresetSection({
     if (!preset) return;
     setTheme(preset.themeId);
     setCardStyle(preset.cardStyle);
-    for (const [key, value] of Object.entries(preset.design)) {
+    for (const [key, value] of presetPrefEntries(preset.design as Record<string, unknown>)) {
       setPref(key as keyof ProfileDisplayPrefs, value as never);
     }
   };
@@ -237,29 +240,42 @@ export function DesignPresetSection({
           );
         })}
       </div>
-       <p className="text-xs text-muted-foreground">Kies eerst een stijl en pas daarna ieder onderdeel afzonderlijk aan.</p>
     </section>
   );
 }
 
-/** Wallpaper — hoort bij "Achtergrond & Visual FX". */
+/** Wallpaper — hoort bij "Achtergrond & Visual FX". Fijnregeling verschijnt pas met de schakelaar aan. */
 export function DesignWallpaperSection({
   prefs,
   setPref,
   theme,
+  extra,
 }: {
   prefs: ProfileDisplayPrefs;
   setPref: SetPref;
   theme: string;
+  /** Extra fijnregeling (bv. bezoekeffect) onderaan het uitklapblok. */
+  extra?: React.ReactNode;
 }) {
   const t = themeOf(theme);
+  const open = prefs.backgroundCustom;
   return (
     <section className="space-y-4">
       <div className="flex items-start justify-between gap-4 rounded-xl border border-border p-3">
-        <div><p className="text-sm font-medium">🖼️ Achtergrond aanpassen</p><p className="mt-1 text-xs text-muted-foreground">Kleur, verloop, beeld en lichtsterkte afzonderlijk regelen.</p></div>
-        <Switch aria-label="Achtergrond aanpassen" checked={prefs.backgroundCustom} onCheckedChange={(v) => setPref("backgroundCustom", v)} />
+        <div><p className="text-sm font-medium">Achtergrond aanpassen</p><p className="mt-1 text-xs text-muted-foreground">Uit: het gekozen ROUT-preset bepaalt alles. Aan: kleur, verloop, textuur en effecten zelf kiezen.</p></div>
+        <Switch aria-label="Achtergrond aanpassen" aria-expanded={open} aria-controls="bg-advanced" checked={open} onCheckedChange={(v) => setPref("backgroundCustom", v)} />
       </div>
-      <CustomGate custom={prefs.backgroundCustom} label="Achtergrond">
+      <div
+        id="bg-advanced"
+        className={cn(
+          "grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none",
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+        )}
+        aria-hidden={!open}
+        inert={!open || undefined}
+      >
+      <div className="min-h-0 space-y-4 overflow-hidden">
+      <p className="input-label">Achtergrondtype</p>
       <div className="flex flex-wrap gap-2">
         {WALLPAPER_TYPES.map((o) => (
           <Pill
@@ -316,6 +332,34 @@ export function DesignWallpaperSection({
         </div>
       )}
 
+      {prefs.wallpaperType === "gradient" && (
+        <>
+          <p className="input-label">Richting van het verloop</p>
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-6" role="radiogroup" aria-label="Richting van het verloop">
+            {GRADIENT_DIRECTIONS.map((d) => (
+              <button
+                key={d.id}
+                type="button"
+                role="radio"
+                aria-checked={prefs.wallpaperGradientDirection === d.id}
+                onClick={() => setPref("wallpaperGradientDirection", d.id)}
+                className={cn(
+                  "flex flex-col items-center gap-1.5 rounded-xl border p-2 text-[11px] font-medium transition-colors",
+                  prefs.wallpaperGradientDirection === d.id ? "border-primary ring-1 ring-primary" : "border-border",
+                )}
+              >
+                <span
+                  aria-hidden
+                  className="block h-8 w-full rounded-md border border-border"
+                  style={{ background: gradientCss(prefs.wallpaperGradient, d.id) }}
+                />
+                {d.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
       {prefs.wallpaperType === "image" && (
         <div className="space-y-4">
           <div className="space-y-1.5">
@@ -350,7 +394,18 @@ export function DesignWallpaperSection({
           </div>
         </div>
       )}
-      </CustomGate>
+
+      <p className="input-label border-t border-border pt-4">Achtergrondstijl</p>
+      <div className="flex flex-wrap gap-2">
+        {BACKGROUND_STYLES.map((o) => (
+          <Pill key={o.id} active={prefs.backgroundStyle === o.id} onClick={() => setPref("backgroundStyle", o.id)}>
+            {o.label}
+          </Pill>
+        ))}
+      </div>
+      {extra && <div className="border-t border-border pt-4">{extra}</div>}
+      </div>
+      </div>
     </section>
   );
 }
