@@ -869,3 +869,8 @@ export function normalizeDesignPrefs(r: Record<string, unknown>): ProfileDesignP
 
   };
 }
+
+/** Instellingen die een ROUT-preset zet; sluit altijd de achtergrond-fijnregeling. */
+export function presetPrefEntries(design: Record<string, unknown>): [string, unknown][] {
+  return [...Object.entries(design).filter(([k]) => k !== "backgroundCustom"), ["backgroundCustom", false]];
+}

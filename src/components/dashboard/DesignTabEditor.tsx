@@ -33,6 +33,7 @@ import {
   WALLPAPER_TYPES,
   fontPairingOf,
   gradientCss,
+  presetPrefEntries,
   type ProfileDisplayPrefs,
 } from "@/lib/profile-display";
 
